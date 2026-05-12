@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analysis &mdash; <span th:text="${result.finalUrl}">URL</span></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Analysis Result</h1>
+        <p class="url-display">
+            <a th:href="${result.finalUrl}" th:text="${result.finalUrl}" target="_blank" rel="noopener">URL</a>
+        </p>
+        <a class="back" href="/">&larr; Analyze another</a>
+    </header>
+
+    <section class="card-grid">
+        <div class="card">
+            <h3>Response</h3>
+            <dl>
+                <dt>Status</dt>
+                <dd>
+                    <span th:classappend="${result.statusCode >= 200 and result.statusCode < 300} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.statusCode}">200</span>
+                </dd>
+                <dt>Response time</dt>
+                <dd><span th:text="${result.responseTimeMs} + ' ms'">0 ms</span></dd>
+                <dt>Content size</dt>
+                <dd><span th:text="${result.contentLengthBytes} + ' bytes'">0</span></dd>
+                <dt>Content type</dt>
+                <dd th:text="${result.contentType} ?: '&mdash;'">&mdash;</dd>
+                <dt>Server</dt>
+                <dd th:text="${result.server} ?: '&mdash;'">&mdash;</dd>
+                <dt>Charset</dt>
+                <dd th:text="${result.charset} ?: '&mdash;'">&mdash;</dd>
+                <dt>HTTPS</dt>
+                <dd>
+                    <span th:classappend="${result.usesHttps} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.usesHttps} ? 'Yes' : 'No'">Yes</span>
+                </dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Metadata</h3>
+            <dl>
+                <dt>Title</dt>
+                <dd th:text="${result.title} ?: '&mdash;'">&mdash;</dd>
+                <dt>Description</dt>
+                <dd th:text="${result.metaDescription} ?: '&mdash;'">&mdash;</dd>
+                <dt>Keywords</dt>
+                <dd th:text="${result.metaKeywords} ?: '&mdash;'">&mdash;</dd>
+                <dt>Language</dt>
+                <dd th:text="${result.language} ?: '&mdash;'">&mdash;</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>SEO Checks</h3>
+            <ul class="check-list">
+                <li>
+                    <span th:classappend="${result.hasViewportMeta} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.hasViewportMeta} ? 'Yes' : 'No'">No</span>
+                    Viewport meta
+                </li>
+                <li>
+                    <span th:classappend="${result.hasCanonical} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.hasCanonical} ? 'Yes' : 'No'">No</span>
+                    Canonical link
+                </li>
+                <li>
+                    <span th:classappend="${result.hasFavicon} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.hasFavicon} ? 'Yes' : 'No'">No</span>
+                    Favicon
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Headings</h3>
+            <dl>
+                <dt>H1</dt><dd th:text="${result.headingCounts['h1']}">0</dd>
+                <dt>H2</dt><dd th:text="${result.headingCounts['h2']}">0</dd>
+                <dt>H3</dt><dd th:text="${result.headingCounts['h3']}">0</dd>
+                <dt>H4</dt><dd th:text="${result.headingCounts['h4']}">0</dd>
+                <dt>H5</dt><dd th:text="${result.headingCounts['h5']}">0</dd>
+                <dt>H6</dt><dd th:text="${result.headingCounts['h6']}">0</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Links &amp; Media</h3>
+            <dl>
+                <dt>Total links</dt><dd th:text="${result.totalLinks}">0</dd>
+                <dt>Internal</dt><dd th:text="${result.internalLinks}">0</dd>
+                <dt>External</dt><dd th:text="${result.externalLinks}">0</dd>
+                <dt>Images</dt><dd th:text="${result.images}">0</dd>
+                <dt>Images missing alt</dt>
+                <dd>
+                    <span th:classappend="${result.imagesMissingAlt == 0} ? 'badge badge-ok' : 'badge badge-warn'"
+                          th:text="${result.imagesMissingAlt}">0</span>
+                </dd>
+                <dt>Scripts</dt><dd th:text="${result.scripts}">0</dd>
+                <dt>Stylesheets</dt><dd th:text="${result.stylesheets}">0</dd>
+                <dt>Forms</dt><dd th:text="${result.forms}">0</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Content</h3>
+            <dl>
+                <dt>Word count</dt><dd th:text="${result.wordCount}">0</dd>
+            </dl>
+            <h4>Top keywords</h4>
+            <ul class="keyword-list">
+                <li th:each="kw : ${result.topKeywords}" th:text="${kw}">word</li>
+                <li th:if="${result.topKeywords == null or result.topKeywords.isEmpty()}">No keywords extracted</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        <a class="back" href="/">&larr; Analyze another URL</a>
+    </footer>
+</div>
+</body>
+</html>

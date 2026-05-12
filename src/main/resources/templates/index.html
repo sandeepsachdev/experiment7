@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Website Analyzer</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Website Analyzer</h1>
+        <p class="tagline">Paste a URL to inspect SEO, performance, and structure.</p>
+    </header>
+
+    <form action="/analyze" method="post" class="analyze-form">
+        <input
+                type="text"
+                name="url"
+                placeholder="example.com or https://example.com"
+                th:value="${url}"
+                required
+                autofocus>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="features">
+        <h2>What you get</h2>
+        <ul>
+            <li>HTTP status, response time, content size, server</li>
+            <li>Page title, meta description, language, charset</li>
+            <li>Heading structure (H1&ndash;H6), links, images, forms</li>
+            <li>SEO checks: HTTPS, canonical, viewport, favicon</li>
+            <li>Word count and top keywords</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>Built with Spring Boot &middot; Deployable on Render or Railway via Docker</p>
+    </footer>
+</div>
+</body>
+</html>
