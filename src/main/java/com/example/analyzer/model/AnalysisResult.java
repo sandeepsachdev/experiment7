@@ -32,6 +32,10 @@ public class AnalysisResult {
     private boolean hasViewportMeta;
     private boolean hasCanonical;
     private boolean hasFavicon;
+    private String robotsTxtUrl;
+    private Integer robotsTxtStatus;
+    private String robotsTxtContent;
+    private String robotsTxtError;
 
     public String getUrl() { return url; }
     public void setUrl(String url) { this.url = url; }
@@ -113,4 +117,16 @@ public class AnalysisResult {
 
     public boolean isHasFavicon() { return hasFavicon; }
     public void setHasFavicon(boolean hasFavicon) { this.hasFavicon = hasFavicon; }
+
+    public String getRobotsTxtUrl() { return robotsTxtUrl; }
+    public void setRobotsTxtUrl(String robotsTxtUrl) { this.robotsTxtUrl = robotsTxtUrl; }
+
+    public Integer getRobotsTxtStatus() { return robotsTxtStatus; }
+    public void setRobotsTxtStatus(Integer robotsTxtStatus) { this.robotsTxtStatus = robotsTxtStatus; }
+
+    public String getRobotsTxtContent() { return robotsTxtContent; }
+    public void setRobotsTxtContent(String robotsTxtContent) { this.robotsTxtContent = robotsTxtContent; }
+
+    public String getRobotsTxtError() { return robotsTxtError; }
+    public void setRobotsTxtError(String robotsTxtError) { this.robotsTxtError = robotsTxtError; }
 }

@@ -64,6 +64,8 @@ public class AnalyzerService {
         String body = response.body();
         result.setContentLengthBytes(body == null ? 0 : body.getBytes().length);
 
+        fetchRobotsTxt(response.url().toString(), result);
+
         String contentType = response.contentType();
         if (contentType == null || !contentType.toLowerCase().contains("html")) {
             result.setHeadingCounts(emptyHeadingCounts());
@@ -73,6 +75,36 @@ public class AnalyzerService {
         Document doc = Jsoup.parse(body, response.url().toString());
         populateFromDocument(doc, result);
         return result;
+    }
+
+    private void fetchRobotsTxt(String pageUrl, AnalysisResult result) {
+        try {
+            URI base = URI.create(pageUrl);
+            URI robots = new URI(base.getScheme(), null, base.getHost(), base.getPort(),
+                    "/robots.txt", null, null);
+            String robotsUrl = robots.toString();
+            result.setRobotsTxtUrl(robotsUrl);
+
+            Connection.Response resp = Jsoup.connect(robotsUrl)
+                    .userAgent(USER_AGENT)
+                    .timeout(TIMEOUT_MS)
+                    .followRedirects(true)
+                    .ignoreHttpErrors(true)
+                    .ignoreContentType(true)
+                    .execute();
+
+            result.setRobotsTxtStatus(resp.statusCode());
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                String content = resp.body();
+                if (content == null) content = "";
+                if (content.length() > 20000) {
+                    content = content.substring(0, 20000) + "\n... [truncated]";
+                }
+                result.setRobotsTxtContent(content);
+            }
+        } catch (Exception e) {
+            result.setRobotsTxtError(e.getMessage());
+        }
     }
 
     private void populateFromDocument(Document doc, AnalysisResult result) {

@@ -173,6 +173,35 @@ h1 {
     border-bottom: none;
 }
 
+.robots-card { margin: 1.5rem 0; }
+
+.robots-meta {
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin: 0 0 0.75rem;
+    word-break: break-all;
+}
+
+.robots-meta a { color: var(--accent); text-decoration: none; }
+.robots-meta a:hover { text-decoration: underline; }
+
+.robots-content {
+    background: #0b1220;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    max-height: 480px;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #cbd5e1;
+    white-space: pre;
+    margin: 0;
+}
+
+.muted { color: var(--muted); font-size: 0.9rem; }
+
 .back {
     color: var(--accent);
     text-decoration: none;

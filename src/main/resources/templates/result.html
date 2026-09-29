@@ -121,6 +121,24 @@
         </div>
     </section>
 
+    <section class="card robots-card">
+        <h3>robots.txt</h3>
+        <p class="robots-meta" th:if="${result.robotsTxtUrl != null}">
+            <a th:href="${result.robotsTxtUrl}" th:text="${result.robotsTxtUrl}" target="_blank" rel="noopener">robots.txt</a>
+            <span th:if="${result.robotsTxtStatus != null}">
+                &middot;
+                <span th:classappend="${result.robotsTxtStatus >= 200 and result.robotsTxtStatus < 300} ? 'badge badge-ok' : 'badge badge-warn'"
+                      th:text="${result.robotsTxtStatus}">200</span>
+            </span>
+        </p>
+        <pre class="robots-content"
+             th:if="${result.robotsTxtContent != null and !result.robotsTxtContent.isEmpty()}"
+             th:text="${result.robotsTxtContent}">robots.txt content</pre>
+        <p class="muted"
+           th:if="${result.robotsTxtContent == null or result.robotsTxtContent.isEmpty()}"
+           th:text="${result.robotsTxtError} ?: 'No robots.txt content available.'">No content</p>
+    </section>
+
     <footer>
         <a class="back" href="/">&larr; Analyze another URL</a>
     </footer>
