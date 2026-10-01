@@ -1,6 +1,7 @@
 package com.example.analyzer.service;
 
 import com.example.analyzer.model.AnalysisResult;
+import com.example.analyzer.model.SpecialFile;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,6 +10,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,6 +26,30 @@ public class AnalyzerService {
     private static final int TIMEOUT_MS = 15000;
     private static final String USER_AGENT =
             "Mozilla/5.0 (compatible; WebsiteAnalyzer/1.0; +https://github.com/)";
+
+    private static final List<SpecialFile> SPECIAL_FILE_DEFS = List.of(
+            new SpecialFile("robots.txt", "/robots.txt",
+                    "https://en.wikipedia.org/wiki/Robots.txt",
+                    "Tells web crawlers which paths they may or may not request."),
+            new SpecialFile("sitemap.xml", "/sitemap.xml",
+                    "https://en.wikipedia.org/wiki/Sitemaps",
+                    "Lists the pages of a site to help search engines crawl it."),
+            new SpecialFile("humans.txt", "/humans.txt",
+                    "https://humanstxt.org/",
+                    "Credits the people behind the site (team, tech, thanks)."),
+            new SpecialFile("security.txt", "/.well-known/security.txt",
+                    "https://securitytxt.org/",
+                    "Standard contact info for reporting security vulnerabilities (RFC 9116)."),
+            new SpecialFile("ads.txt", "/ads.txt",
+                    "https://iabtechlab.com/ads-txt/",
+                    "Declares which companies are authorized to sell the site's ad inventory."),
+            new SpecialFile("favicon.ico", "/favicon.ico",
+                    "https://en.wikipedia.org/wiki/Favicon",
+                    "The small icon browsers display for the site in tabs and bookmarks."),
+            new SpecialFile("manifest.json", "/manifest.json",
+                    "https://developer.mozilla.org/en-US/docs/Web/Manifest",
+                    "Web app manifest: name, icons, and settings for installable PWAs.")
+    );
 
     private static final Set<String> STOP_WORDS = new HashSet<>(Arrays.asList(
             "the", "and", "for", "are", "but", "not", "you", "all", "can", "her",
@@ -64,7 +90,7 @@ public class AnalyzerService {
         String body = response.body();
         result.setContentLengthBytes(body == null ? 0 : body.getBytes().length);
 
-        fetchRobotsTxt(response.url().toString(), result);
+        probeSpecialFiles(response.url().toString(), result);
 
         String contentType = response.contentType();
         if (contentType == null || !contentType.toLowerCase().contains("html")) {
@@ -77,34 +103,55 @@ public class AnalyzerService {
         return result;
     }
 
-    private void fetchRobotsTxt(String pageUrl, AnalysisResult result) {
+    private void probeSpecialFiles(String pageUrl, AnalysisResult result) {
+        URI base;
         try {
-            URI base = URI.create(pageUrl);
-            URI robots = new URI(base.getScheme(), null, base.getHost(), base.getPort(),
-                    "/robots.txt", null, null);
-            String robotsUrl = robots.toString();
-            result.setRobotsTxtUrl(robotsUrl);
-
-            Connection.Response resp = Jsoup.connect(robotsUrl)
-                    .userAgent(USER_AGENT)
-                    .timeout(TIMEOUT_MS)
-                    .followRedirects(true)
-                    .ignoreHttpErrors(true)
-                    .ignoreContentType(true)
-                    .execute();
-
-            result.setRobotsTxtStatus(resp.statusCode());
-            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
-                String content = resp.body();
-                if (content == null) content = "";
-                if (content.length() > 20000) {
-                    content = content.substring(0, 20000) + "\n... [truncated]";
-                }
-                result.setRobotsTxtContent(content);
-            }
+            base = URI.create(pageUrl);
         } catch (Exception e) {
-            result.setRobotsTxtError(e.getMessage());
+            return;
         }
+
+        List<SpecialFile> probed = new ArrayList<>();
+        for (SpecialFile def : SPECIAL_FILE_DEFS) {
+            SpecialFile sf = new SpecialFile(def.getName(), def.getPath(),
+                    def.getInfoUrl(), def.getDescription());
+            try {
+                URI target = new URI(base.getScheme(), null, base.getHost(), base.getPort(),
+                        def.getPath(), null, null);
+                String url = target.toString();
+                sf.setUrl(url);
+
+                Connection.Response resp = Jsoup.connect(url)
+                        .userAgent(USER_AGENT)
+                        .timeout(TIMEOUT_MS)
+                        .followRedirects(true)
+                        .ignoreHttpErrors(true)
+                        .ignoreContentType(true)
+                        .method(Connection.Method.GET)
+                        .execute();
+                sf.setStatus(resp.statusCode());
+
+                if ("robots.txt".equals(def.getName())) {
+                    result.setRobotsTxtUrl(url);
+                    result.setRobotsTxtStatus(resp.statusCode());
+                    if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                        String content = resp.body();
+                        if (content == null) content = "";
+                        if (content.length() > 20000) {
+                            content = content.substring(0, 20000) + "\n... [truncated]";
+                        }
+                        result.setRobotsTxtContent(content);
+                    }
+                }
+            } catch (Exception e) {
+                sf.setError(e.getMessage());
+                if ("robots.txt".equals(def.getName())) {
+                    result.setRobotsTxtError(e.getMessage());
+                }
+            }
+            probed.add(sf);
+        }
+        result.setSpecialFiles(probed);
     }
 
     private void populateFromDocument(Document doc, AnalysisResult result) {

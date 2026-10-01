@@ -36,6 +36,7 @@ public class AnalysisResult {
     private Integer robotsTxtStatus;
     private String robotsTxtContent;
     private String robotsTxtError;
+    private List<SpecialFile> specialFiles;
 
     public String getUrl() { return url; }
     public void setUrl(String url) { this.url = url; }
@@ -129,4 +130,7 @@ public class AnalysisResult {
 
     public String getRobotsTxtError() { return robotsTxtError; }
     public void setRobotsTxtError(String robotsTxtError) { this.robotsTxtError = robotsTxtError; }
+
+    public List<SpecialFile> getSpecialFiles() { return specialFiles; }
+    public void setSpecialFiles(List<SpecialFile> specialFiles) { this.specialFiles = specialFiles; }
 }
