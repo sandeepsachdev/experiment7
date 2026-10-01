@@ -156,6 +156,33 @@
         </table>
     </section>
 
+    <section class="card loadtest-card">
+        <h3>Quick Load Test</h3>
+        <p class="muted">
+            Runs for 30 seconds against
+            <code th:text="${result.finalUrl}">url</code>,
+            ramping from 1 to 10 concurrent workers.
+            Only run this on sites you own or have permission to test.
+        </p>
+        <div class="loadtest-controls">
+            <button id="lt-start" type="button"
+                    th:attr="data-url=${result.finalUrl}">
+                Run 30s load test
+            </button>
+            <span id="lt-status" class="muted">Idle</span>
+        </div>
+        <div class="loadtest-stats">
+            <div><span class="stat-label">Elapsed</span><span id="lt-elapsed">0s</span></div>
+            <div><span class="stat-label">Workers</span><span id="lt-workers">0</span></div>
+            <div><span class="stat-label">Requests</span><span id="lt-total">0</span></div>
+            <div><span class="stat-label">Errors</span><span id="lt-errors">0</span></div>
+            <div><span class="stat-label">Avg ms</span><span id="lt-avg">0</span></div>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="lt-chart"></canvas>
+        </div>
+    </section>
+
     <section class="card robots-card">
         <h3>robots.txt</h3>
         <p class="robots-meta" th:if="${result.robotsTxtUrl != null}">
@@ -178,5 +205,8 @@
         <a class="back" href="/">&larr; Analyze another URL</a>
     </footer>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/loadtest.js}"></script>
 </body>
 </html>
